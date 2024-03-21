@@ -2,7 +2,6 @@ import { Box, Typography, Button } from "@mui/material";
 import Link from "next/link";
 
 export default function Home() {
-
   return (
     <Box style={{ textAlign: "center", marginTop: "50px" }}>
       <Typography variant="h4" component="h1">
@@ -21,11 +20,11 @@ export default function Home() {
             Single Chat
           </Button>
         </Link>
-        <Link href="/chat/continuous">
+        {/* <Link href="/chat/continuous">
           <Button variant="contained" sx={{ mb: 2 }}>
             Continuous Chat
           </Button>
-        </Link>
+        </Link> */}
         <Link href="/chat/system">
           <Button variant="contained" sx={{ mb: 2 }}>
             System Chat
@@ -33,7 +32,7 @@ export default function Home() {
         </Link>
         <Link href="/chat/assistant">
           <Button variant="contained" sx={{ mb: 2 }}>
-            Assistant 
+            Assistant
           </Button>
         </Link>
       </Box>
