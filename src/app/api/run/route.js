@@ -1,49 +1,48 @@
 import openai from "../../utils/openai";
-import fs from "fs";
-import { NextRequest, NextResponse } from "next/server";
+import { Readable } from "stream";
+import { NextResponse } from "next/server";
 
-export async function POST(req) {
+export async function POST(req, res) {
   const data = await req.json();
   const assistantId = data.assistantId;
   const threadId = data.threadId;
-  let textDeltaValue; // Variable to store textDelta value
+
+  let customReadable;
 
   if (!threadId || !assistantId) {
     throw new Error("FileId or AssistantId is missing in the request body");
   }
+
   try {
     const run = openai.beta.threads.runs
       .createAndStream(threadId, {
         assistant_id: assistantId,
       })
-      .on("textCreated", (text) => {
-        // console.log("Received text from assistant:", text); // Log the received text
-        process.stdout.write("\nassistant > ");
-      })
       .on("textDelta", (textDelta, snapshot) => {
-        console.log("Received textDelta from assistant:", textDelta.value);
-        textDeltaValue = textDelta.value; // Store textDelta value
-        process.stdout.write(textDelta.value);
-      })
-      .on("toolCallCreated", (toolCall) =>
-        process.stdout.write(`\nassistant > ${toolCall.type}\n\n`),
-      );
-
-    // Return a promise that resolves when textDelta value is available
-    const textDeltaPromise = new Promise((resolve) => {
-      run.on("textDelta", () => {
-        resolve(textDeltaValue);
+        const text = textDelta.value;
+        console.log(text);
+        const encoder = new TextEncoder();
+        // Create a streaming response
+        customReadable = new ReadableStream({
+          start(controller) {
+            const message = text;
+            controller.enqueue(encoder.encode(`data: ${message}\n\n`));
+          },
+        });
       });
-    });
 
-    // Wait for the promise to resolve before returning the response
-    const resolvedTextDeltaValue = await textDeltaPromise;
-
-    return NextResponse.json({
-      run: run,
-      text: resolvedTextDeltaValue, // Return the resolved textDelta value
+    return new Response(customReadable, {
+      // Set the headers for Server-Sent Events (SSE)
+      headers: {
+        "Content-Type": "text/event-stream; charset=utf-8",
+        Connection: "keep-alive",
+        "Cache-Control": "no-cache, no-transform",
+        "Content-Encoding": "none",
+      },
     });
   } catch (error) {
-    return NextResponse.json({ error: error.message });
+    console.error("Error:", error);
+    res.statusCode = 500;
+    res.end();
   }
 }

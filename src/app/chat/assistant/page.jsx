@@ -62,20 +62,19 @@ export default function Assistant() {
         console.error("Failed");
       }
 
-      const responseData = await response.json();
-      console.log("Run successfully:", responseData);
+      console.log("Run successfully:", response);
 
-      const reader = data.getReader();
-      const decoder = new TextDecoder();
-      let done = false;
-      while (!done) {
-        const { value, done: doneReading } = await reader.read();
-        done = doneReading;
-        const chunkValue = decoder.decode(value);
-        console.log(chunkValue);
-        // setMessages((prev) => prev + chunkValue);
-      }
-      setRunId(data.run.id);
+      // const reader = response.body.getReader();
+      // const decoder = new TextDecoder();
+      // let done = false;
+      // while (!done) {
+      //   const { value, done: doneReading } = await reader.read();
+      //   done = doneReading;
+      //   const chunkValue = decoder.decode(value);
+      //   console.log(chunkValue);
+      //   setMessages((prev) => prev + chunkValue);
+      // }
+      // setRunId(data.run.id);
     } catch (error) {
       console.error("Error:", error);
       throw error; // Rethrow the error to handle it in the caller function if needed
@@ -84,7 +83,7 @@ export default function Assistant() {
 
   console.log({ runId: runId });
   console.log({ threadId: threadId });
-  // console.log({ messages: messages });
+  console.log({ messages: messages });
 
   const handleListMessages = async () => {
     if (runId && threadId) {
@@ -98,6 +97,51 @@ export default function Assistant() {
     }
   };
 
+  // async function handleTest(payload) {
+  //   const encoder = new TextEncoder();
+  //   const decoder = new TextDecoder();
+  //   const res = await fetch("https://api.openai.com/v1/chat/completions", {
+  //     method: "POST",
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //       Authorization: `Bearer ${process.env.OPENAI_API_KEY || ""}`,
+  //     },
+  //     body: JSON.stringify(payload),
+  //   });
+  //   console.log(res);
+  //   let counter = 0;
+  //   const stream = new ReadableStream({
+  //     async start(controller) {
+  //       function push(event) {
+  //         if (event.type === "event") {
+  //           const { data } = event;
+  //           if (data === "[DONE]") {
+  //             controller.close();
+  //             return;
+  //           }
+  //           try {
+  //             const json = JSON.parse(data);
+  //             const text = json.choices[0].delta?.content || "";
+  //             if (counter < 2 && (text.match(/\n/) || []).length) {
+  //               return;
+  //             }
+  //             const queue = encoder.encode(text);
+  //             controller.enqueue(queue);
+  //             counter++;
+  //           } catch (err) {
+  //             controller.error(err);
+  //           }
+  //         }
+  //       }
+  //       const parser = createParser(push);
+  //       for await (const chunk of res.body) {
+  //         parser.feed(decoder.decode(chunk));
+  //       }
+  //     },
+  //   });
+  //   return stream;
+  // }
+
   return (
     <>
       <button onClick={handleUpload}>Upload</button>
@@ -106,6 +150,7 @@ export default function Assistant() {
       <button onClick={handleCreateMessage}>Create message</button>
       <button onClick={handleRun}>Run</button>
       <button onClick={handleListMessages}>List messages</button>
+      {/* <button onClick={handleTest}>Test</button> */}
     </>
   );
 }
