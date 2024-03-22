@@ -20,12 +20,15 @@ import {
   createRun,
   listMessages,
 } from "../../services/api";
+import { fetchAssistantResponse } from "../../services/chat";
 
 export default function Assistant() {
   const [fileId, setFileId] = useState();
   const [threadId, setThreadId] = useState();
   const [assistantId, setAssistantId] = useState();
   const [runId, setRunId] = useState();
+  const [statusMessage, setStatusMessage] = useState();
+  const [messages, setMessages] = useState();
 
   const handleUpload = async () => {
     let data = await uploadFile();
@@ -48,14 +51,51 @@ export default function Assistant() {
   };
 
   const handleRun = async () => {
-    let data = await createRun(threadId, assistantId);
-    console.log(data);
-    setRunId(data.run.id);
+    try {
+      const response = await fetch("/api/run", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ threadId, assistantId }),
+      });
+
+      if (!response.ok) {
+        console.error("Failed");
+      }
+
+      const responseData = await response.json();
+      console.log("Run successfully:", responseData);
+
+      const reader = data.getReader();
+      const decoder = new TextDecoder();
+      let done = false;
+      while (!done) {
+        const { value, done: doneReading } = await reader.read();
+        done = doneReading;
+        const chunkValue = decoder.decode(value);
+        console.log(chunkValue);
+        // setMessages((prev) => prev + chunkValue);
+      }
+      setRunId(data.run.id);
+    } catch (error) {
+      console.error("Error:", error);
+      throw error; // Rethrow the error to handle it in the caller function if needed
+    }
   };
 
+  console.log({ runId: runId });
+  console.log({ threadId: threadId });
+  // console.log({ messages: messages });
+
   const handleListMessages = async () => {
-    let data = await listMessages(threadId);
-    console.log(data);
+    if (runId && threadId) {
+      setStatusMessage("checking status");
+      const response = fetchAssistantResponse(
+        threadId,
+        runId,
+        setStatusMessage,
+      );
+      console.log(response);
+    }
   };
 
   return (

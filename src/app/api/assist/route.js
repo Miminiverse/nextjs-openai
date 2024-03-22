@@ -17,8 +17,6 @@ export async function POST(req) {
       file_ids: [fileId],
     });
 
-    console.log(assistant);
-
     return NextResponse.json({
       assistant: assistant,
     });

@@ -133,3 +133,26 @@ export const listMessages = async (threadId) => {
     throw error; // Rethrow the error to handle it in the caller function if needed
   }
 };
+
+
+export const checkRunStatus = async (threadId, runId) => {
+  try {
+    const response = await fetch('/api/check-run', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ threadId, runId })
+    });
+
+    if (!response.ok) {
+      console.error('Failed');
+    }
+
+    const responseData = await response.json();
+    console.log('Run successfully:', responseData);
+    return responseData;
+  }
+  catch (error) {
+    console.error('Error:', error);
+    throw error; // Rethrow the error to handle it in the caller function if needed
+  }
+};

@@ -12,7 +12,6 @@ export async function POST(req) {
       role: "user",
       content: "Summarize this book",
     });
-    console.log(message);
 
     return NextResponse.json({
       message: message,

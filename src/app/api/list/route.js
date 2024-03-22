@@ -9,7 +9,6 @@ export async function POST(req) {
   }
   try {
     const messages = await openai.beta.threads.messages.list(threadId);
-    console.log(messages);
 
     return NextResponse.json({
       messages: messages,

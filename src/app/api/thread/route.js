@@ -12,7 +12,6 @@ export async function POST(req) {
         },
       ],
     });
-    console.log(thread);
 
     return NextResponse.json({
       thread: thread,
