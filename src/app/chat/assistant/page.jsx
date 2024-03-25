@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Button,
   Container,
@@ -64,16 +64,16 @@ export default function Assistant() {
 
       console.log("Run successfully:", response);
 
-      // const reader = response.body.getReader();
-      // const decoder = new TextDecoder();
-      // let done = false;
-      // while (!done) {
-      //   const { value, done: doneReading } = await reader.read();
-      //   done = doneReading;
-      //   const chunkValue = decoder.decode(value);
-      //   console.log(chunkValue);
-      //   setMessages((prev) => prev + chunkValue);
-      // }
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let done = false;
+      while (!done) {
+        const { value, done: doneReading } = await reader.read();
+        done = doneReading;
+        const chunkValue = decoder.decode(value);
+        console.log(chunkValue);
+        setMessages((prev) => prev + chunkValue);
+      }
       // setRunId(data.run.id);
     } catch (error) {
       console.error("Error:", error);

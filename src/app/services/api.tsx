@@ -135,12 +135,12 @@ export const listMessages = async (threadId) => {
 };
 
 
-export const checkRunStatus = async (threadId, runId) => {
+export const checkRun = async (threadId, assistantId) => {
   try {
-    const response = await fetch('/api/check-run', {
+    const response = await fetch('/api/run', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ threadId, runId })
+      body: JSON.stringify({ threadId, assistantId })
     });
 
     if (!response.ok) {
